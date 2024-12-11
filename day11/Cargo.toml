@@ -1,8 +1,7 @@
 [package]
-name = "day09"
+name = "day11"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
 itertools = "0.13.0"
-velcro = "0.5.3"

@@ -38,9 +38,9 @@ fn part2(antennas: &HashMap<char, LinkedList<Point>>, width: usize, height: usiz
     antinodes.len()
 }
 fn main() {
-    let input_filename = "demo";
-    let input_filename = "input";
-    let input: Vec<Vec<char>> = std::fs::read_to_string(input_filename)
+    let _input_filename = "demo";
+    let _input_filename = "input";
+    let input: Vec<Vec<char>> = std::fs::read_to_string(_input_filename)
         .expect("Unable to read file")
         .lines()
         .map(|l| l.chars().collect())

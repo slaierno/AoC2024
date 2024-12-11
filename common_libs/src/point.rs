@@ -33,6 +33,11 @@ impl Point {
             y: other.y - self.y,
         }
     }
+    pub fn ortho_neighbours(&self) -> impl Iterator<Item = Point> {
+        [DN_VEC, UP_VEC, LX_VEC, RX_VEC]
+            .map(|p| p + self)
+            .into_iter()
+    }
 }
 
 impl<'a, B> std::ops::Add<B> for &'a Point
@@ -57,5 +62,11 @@ where
 
     fn add(self, rhs: B) -> Self::Output {
         &self + rhs
+    }
+}
+
+impl std::fmt::Display for Point {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "({}, {})", self.x, self.y)
     }
 }
