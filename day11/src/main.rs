@@ -1,6 +1,6 @@
+use itertools::Itertools;
 use std::collections::HashMap;
 
-use itertools::Itertools;
 fn blink(n: u64) -> Vec<u64> {
     match n {
         0 => vec![1u64],
@@ -18,6 +18,7 @@ fn blink(n: u64) -> Vec<u64> {
     }
 }
 
+// This is for test only, do not use on big inputs
 fn blink_n(number: u64, times: u64) -> Vec<u64> {
     match times {
         1 => blink(number),
@@ -30,17 +31,18 @@ fn blink_n(number: u64, times: u64) -> Vec<u64> {
 
 fn blink_n_count_impl(number: u64, times: u64, memo: &mut HashMap<(u64, u64), usize>) -> usize {
     if memo.contains_key(&(number, times)) {
-        return memo.get(&(number, times)).unwrap().clone();
+        memo.get(&(number, times)).unwrap().clone()
+    } else {
+        let stone_count = match times {
+            1 => blink(number).len(),
+            _ => blink(number)
+                .iter()
+                .map(|x| blink_n_count_impl(*x, times - 1, memo))
+                .sum::<usize>(),
+        };
+        memo.insert((number, times), stone_count);
+        stone_count
     }
-    let ret = match times {
-        1 => blink(number).len(),
-        _ => blink(number)
-            .iter()
-            .map(|x| blink_n_count_impl(*x, times - 1, memo))
-            .sum::<usize>(),
-    };
-    memo.insert((number, times), ret);
-    ret
 }
 
 fn blink_n_count(number: u64, times: u64) -> usize {
@@ -66,9 +68,9 @@ fn test() {
     }
     {
         let input_str = "125 17".to_string();
-        let input = process_input(&input_str);
         let expected_str =
             "2097446912 14168 4048 2 0 2 4 40 48 2024 40 48 80 96 2 8 6 7 6 0 3 2".to_string();
+        let input = process_input(&input_str);
         let expected_result = process_input(&expected_str);
         assert_eq!(
             expected_result,
@@ -77,17 +79,20 @@ fn test() {
         assert_eq!(55312, input.iter().flat_map(|x| blink_n(*x, 25)).count());
     }
 }
+
+fn part1(input: &Vec<u64>) -> usize {
+    input.iter().map(|x| blink_n_count(*x, 25)).sum::<usize>()
+}
+
+fn part2(input: &Vec<u64>) -> usize {
+    input.iter().map(|x| blink_n_count(*x, 75)).sum::<usize>()
+}
+
 fn main() {
     test();
 
     let input_str = "6563348 67 395 0 6 4425 89567 739318".to_string();
     let input = process_input(&input_str);
-    assert_eq!(
-        184927,
-        input.iter().map(|x| blink_n_count(*x, 25)).sum::<usize>()
-    );
-    assert_eq!(
-        220357186726677,
-        input.iter().map(|x| blink_n_count(*x, 75)).sum::<usize>()
-    );
+    assert_eq!(184927, part1(&input));
+    assert_eq!(220357186726677, part2(&input));
 }
