@@ -1,4 +1,5 @@
 pub use crate::point::Point;
+use itertools::Itertools;
 use std::borrow::Borrow;
 
 #[derive(Debug, Clone)]
@@ -29,6 +30,51 @@ impl<T> Map<T> {
     pub fn iter_rows(&self) -> impl Iterator<Item = &Vec<T>> {
         self.map.iter()
     }
+    pub fn iter_rows_mut(&mut self) -> impl Iterator<Item = &mut Vec<T>> {
+        self.map.iter_mut()
+    }
+
+    pub fn get_all_positions_cr(&self) -> impl Iterator<Item = Point> {
+        (0..self.width())
+            .cartesian_product(0..self.height())
+            .map(Point::from_tuple)
+    }
+    pub fn get_all_positions(&self) -> impl Iterator<Item = Point> {
+        self.get_all_positions_cr()
+    }
+    pub fn get_all_positions_rc(&self) -> impl Iterator<Item = Point> {
+        (0..self.height())
+            .cartesian_product(0..self.width())
+            .map(|(y, x)| Point::from_usize(x, y))
+    }
+
+    pub fn get_or(&self, pos: &Point, default: T) -> T
+    where
+        T: Clone + Copy,
+    {
+        if self.is_pos_inside(pos) {
+            self.map[pos.x as usize][pos.y as usize]
+        } else {
+            default
+        }
+    }
+}
+
+impl<T> Map<T>
+where
+    T: Clone,
+{
+    pub fn from_size_value(width: usize, height: usize, value: T) -> Map<T> {
+        Map {
+            map: vec![vec![value; width]; height],
+        }
+    }
+    pub fn from_size_default(width: usize, height: usize) -> Map<T>
+    where
+        T: Default,
+    {
+        Self::from_size_value(width, height, T::default())
+    }
 }
 
 impl<'a, T> Map<T>
@@ -47,6 +93,7 @@ where
         })
     }
 }
+
 impl<'a, BPoint, T> std::ops::Index<BPoint> for Map<T>
 where
     BPoint: Borrow<Point>,

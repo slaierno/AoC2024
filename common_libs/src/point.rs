@@ -18,6 +18,12 @@ impl Point {
             y: y as isize,
         }
     }
+    pub fn from_tuple((x, y): (usize, usize)) -> Point {
+        Point {
+            x: x as isize,
+            y: y as isize,
+        }
+    }
     pub fn rotate_cw(self) -> Point {
         match self {
             DN_VEC => LX_VEC,
@@ -37,6 +43,31 @@ impl Point {
         [DN_VEC, UP_VEC, LX_VEC, RX_VEC]
             .map(|p| p + self)
             .into_iter()
+    }
+
+    pub fn north(&self) -> Point {
+        Point {
+            x: self.x,
+            y: self.y - 1,
+        }
+    }
+    pub fn south(&self) -> Point {
+        Point {
+            x: self.x,
+            y: self.y + 1,
+        }
+    }
+    pub fn west(&self) -> Point {
+        Point {
+            x: self.x - 1,
+            y: self.y,
+        }
+    }
+    pub fn east(&self) -> Point {
+        Point {
+            x: self.x + 1,
+            y: self.y,
+        }
     }
 }
 
