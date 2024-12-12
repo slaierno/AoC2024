@@ -53,7 +53,7 @@ impl<T> Map<T> {
         T: Clone + Copy,
     {
         if self.is_pos_inside(pos) {
-            self.map[pos.x as usize][pos.y as usize]
+            self.map[pos.y as usize][pos.x as usize]
         } else {
             default
         }

@@ -92,36 +92,82 @@ fn get_area_side(component_map: &Map<i32>) -> (BTreeMap<i32, usize>, BTreeMap<i3
         let area = *areas.get(&component_id).unwrap_or(&0);
         areas.insert(component_id, area + 1);
     }
+
     let mut n_of_sides = btree_map![];
-    for x in 0..component_map.width() {
+    for x in 0..=component_map.width() {
+        let mut last_right_element = UNASSIGNED_COMPONENT;
+        let mut last_left_element = UNASSIGNED_COMPONENT;
         for y in 0..component_map.height() {
-            let p = Point {
-                x: x as isize,
-                y: y as isize,
-            };
-            let curr_component_id = component_map[p];
-            if curr_component_id != last_component_id {
-                last_component_id = curr_component_id;
-                let sides = *n_of_sides.get(&curr_component_id).unwrap_or(&0);
-                n_of_sides.insert(curr_component_id, sides + 1);
+            let right_element = component_map.get_or(
+                &Point {
+                    x: x as isize,
+                    y: y as isize,
+                },
+                UNASSIGNED_COMPONENT,
+            );
+            let left_element = component_map.get_or(
+                &Point {
+                    x: (x as isize - 1),
+                    y: y as isize,
+                },
+                UNASSIGNED_COMPONENT,
+            );
+
+            let same_left_side = last_left_element == left_element;
+            let same_right_side = last_right_element == right_element;
+            let top_is_continous = last_left_element == last_right_element;
+            if right_element != left_element // There might be a side here...
+                && !(same_left_side && same_right_side)
+            // ...and it's not a prolongation of the previous one
+            {
+                if !same_right_side || top_is_continous {
+                    let element_sides = n_of_sides.get(&right_element).unwrap_or(&0);
+                    n_of_sides.insert(right_element, element_sides + 1);
+                }
+                if !same_left_side || top_is_continous {
+                    let element_sides = n_of_sides.get(&left_element).unwrap_or(&0);
+                    n_of_sides.insert(left_element, element_sides + 1);
+                }
             }
+            last_right_element = right_element;
+            last_left_element = left_element;
         }
     }
-    for y in 0..component_map.height() {
-        let mut last_component_id = UNASSIGNED_COMPONENT;
+
+    for y in 0..=component_map.height() {
+        let mut last_down_element = UNASSIGNED_COMPONENT;
+        let mut last_up_element = UNASSIGNED_COMPONENT;
         for x in 0..component_map.width() {
-            let p = Point {
-                x: x as isize,
-                y: y as isize,
-            };
-            let curr_component_id = component_map[p];
-            if curr_component_id != last_component_id {
-                last_component_id = curr_component_id;
-                let sides = *n_of_sides.get(&curr_component_id).unwrap_or(&0);
-                n_of_sides.insert(curr_component_id, sides + 1);
+            let down_element = component_map.get_or(&Point::from_usize(x, y), UNASSIGNED_COMPONENT);
+            let up_element = component_map.get_or(
+                &Point {
+                    x: x as isize,
+                    y: y as isize - 1,
+                },
+                UNASSIGNED_COMPONENT,
+            );
+
+            let same_up_side = last_up_element == up_element;
+            let same_down_side = last_down_element == down_element;
+            let left_is_continous = last_up_element == last_down_element;
+            if down_element != up_element // There might be a side here...
+                && !(same_down_side && same_up_side)
+            // ...and it's not a prolongation of the previous one
+            {
+                if !same_down_side || left_is_continous {
+                    let element_sides = n_of_sides.get(&down_element).unwrap_or(&0);
+                    n_of_sides.insert(down_element, element_sides + 1);
+                }
+                if !same_up_side || left_is_continous {
+                    let element_sides = n_of_sides.get(&up_element).unwrap_or(&0);
+                    n_of_sides.insert(up_element, element_sides + 1);
+                };
             }
+            last_down_element = down_element;
+            last_up_element = up_element;
         }
     }
+    n_of_sides.remove(&UNASSIGNED_COMPONENT);
     (areas, n_of_sides)
 }
 
@@ -214,10 +260,12 @@ fn test() {
         assert_eq!(1206, part2(&demo_str));
     }
 }
+
 fn main() {
     test();
 
     let input_filename = "input";
     let input_str = std::fs::read_to_string(input_filename).expect("Unable to read file");
     assert_eq!(1433460, part1(&input_str));
+    assert_eq!(855082, part2(&input_str));
 }
