@@ -18,15 +18,6 @@ impl<T> Map<T> {
         pos.x >= 0 && pos.x < self.width() as isize && pos.y >= 0 && pos.y < self.height() as isize
     }
 
-    // fn is_obstacle(&self, pos: &Point) -> bool {
-    //     self.is_pos_inside(pos) && self[pos] == OBSTACLE
-    // }
-    // fn clone_with_new_obstacle(&self, pos: &Point) -> Map {
-    //     let mut new_map = self.clone();
-    //     new_map[pos] = OBSTACLE;
-    //     new_map
-    // }
-
     pub fn iter_rows(&self) -> impl Iterator<Item = &Vec<T>> {
         self.map.iter()
     }

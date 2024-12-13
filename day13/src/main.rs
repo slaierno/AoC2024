@@ -1,3 +1,4 @@
+use common_libs::lineq::Bezout;
 use itertools::Itertools;
 
 struct ClawMachine {
@@ -44,7 +45,17 @@ impl ClawMachine {
         let det_b = self.x_a * self.y_prize - self.x_prize * self.y_a;
         let det = self.x_a * self.y_b - self.x_b * self.y_a;
         if det == 0 {
-            None
+            if det_a == 0 && det_b == 0 {
+                let bezout = Bezout::new(self.x_a, self.x_b, self.x_prize);
+                if let Some((a0, b0)) = bezout.find_one_solution() {
+                    // TODO find best solution here!
+                    None
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
         } else {
             let (a, a_rem) = (det_a / det, det_a % det);
             let (b, b_rem) = (det_b / det, det_b % det);
