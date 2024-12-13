@@ -36,20 +36,13 @@ struct ClawMachine {
 impl ClawMachine {
     fn line_to_values(button_line: &str, delimiter: &str) -> (i64, i64) {
         button_line
-            .split_once(":")
-            .unwrap()
-            .1
             .split_terminator(",")
             .map(|s| s.split_once(delimiter).unwrap().1.parse::<i64>().unwrap())
             .collect_tuple()
             .unwrap()
     }
     pub fn from_string(input_str: &str) -> ClawMachine {
-        let mut lines = input_str.lines();
-        let a_button = lines.next().unwrap();
-        let b_button = lines.next().unwrap();
-        let prize_info = lines.next().unwrap();
-        assert_eq!(lines.next(), None);
+        let (a_button, b_button, prize_info) = input_str.lines().collect_tuple().unwrap();
         let (x_a, y_a) = Self::line_to_values(&a_button, "+");
         let (x_b, y_b) = Self::line_to_values(&b_button, "+");
         let (x_prize, y_prize) = Self::line_to_values(&prize_info, "=");
@@ -75,14 +68,9 @@ impl ClawMachine {
         ctx: &'ctx Context,
     ) -> impl Iterator<Item = z3::ast::Bool<'ctx>> {
         enable_z3_macro!(&ctx);
-        let x_a = z3if!(self.x_a);
-        let x_b = z3if!(self.x_b);
-        let x_prize = z3if!(self.x_prize);
-        let y_a = z3if!(self.y_a);
-        let y_b = z3if!(self.y_b);
-        let y_prize = z3if!(self.y_prize);
-        let a = z3cf!("A");
-        let b = z3cf!("B");
+        let (x_a, x_b, x_prize) = (z3if!(self.x_a), z3if!(self.x_b), z3if!(self.x_prize));
+        let (y_a, y_b, y_prize) = (z3if!(self.y_a), z3if!(self.y_b), z3if!(self.y_prize));
+        let (a, b) = (z3cf!("A"), z3cf!("B"));
         [
             (a() * x_a() + b() * x_b())._eq(&x_prize()),
             (a() * y_a() + b() * y_b())._eq(&y_prize()),
@@ -99,15 +87,14 @@ fn solve_claw_machine(cm: &ClawMachine) -> Option<i64> {
     let opt = Optimize::new(&ctx);
     enable_z3_macro!(&ctx);
 
-    let a = z3cf!("A");
-    let b = z3cf!("B");
+    let (a, b) = (z3cf!("A"), z3cf!("B"));
     let min_function = a() * z3i!(3) + b();
     cm.get_all_constraints(&ctx).for_each(|x| opt.assert(&x));
     opt.minimize(&min_function);
 
     if let SatResult::Sat = opt.check(&[]) {
         let model = opt.get_model().unwrap();
-        let a_res: i64 = model.eval(&a(), true).unwrap().as_i64().unwrap();
+        let a_res = model.eval(&a(), true).unwrap().as_i64().unwrap();
         let b_res = model.eval(&b(), true).unwrap().as_i64().unwrap();
         Some(a_res * 3 + b_res)
     } else {
@@ -141,24 +128,9 @@ fn test() {
         assert_eq!(solve_claw_machine(&cm), Some(280));
     }
     {
-        let demo_str = "Button A: X+94, Y+34\n\
-                              Button B: X+22, Y+67\n\
-                              Prize: X=8400, Y=5400\n\
-                              \n\
-                              Button A: X+26, Y+66\n\
-                              Button B: X+67, Y+21\n\
-                              Prize: X=12748, Y=12176\n\
-                              \n\
-                              Button A: X+17, Y+86\n\
-                              Button B: X+84, Y+37\n\
-                              Prize: X=7870, Y=6450\n\
-                              \n\
-                              Button A: X+69, Y+23\n\
-                              Button B: X+27, Y+71\n\
-                              Prize: X=18641, Y=10279"
-            .to_string();
+        let demo_filename = "demo";
+        let demo_str = std::fs::read_to_string(demo_filename).expect("Unable to read file");
         assert_eq!(480, part1(&demo_str));
-        // They didn't even bother us to give a solution for part 2 example!
     }
 }
 
