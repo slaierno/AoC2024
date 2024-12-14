@@ -7,7 +7,7 @@ fn part1(antennas: &HashMap<char, LinkedList<Point>>, width: usize, height: usiz
     for pos_list in antennas.values() {
         for pos in pos_list {
             for p in pos_list.iter().filter(|p| **p != *pos) {
-                let dist = pos.dist_vec(&p);
+                let dist = p - pos;
                 let antinodes_pos = pos + dist + dist;
                 if (0..height as isize).contains(&antinodes_pos.y)
                     && (0..width as isize).contains(&antinodes_pos.x)
@@ -24,7 +24,7 @@ fn part2(antennas: &HashMap<char, LinkedList<Point>>, width: usize, height: usiz
     for pos_list in antennas.values() {
         for pos in pos_list {
             for p in pos_list.iter().filter(|p| **p != *pos) {
-                let dist = pos.dist_vec(&p);
+                let dist = p - pos;
                 let mut antinodes_pos = *p;
                 while (0..height as isize).contains(&antinodes_pos.y)
                     && (0..width as isize).contains(&antinodes_pos.x)
@@ -59,6 +59,6 @@ fn main() {
         }
         ret
     };
-    println!("{}", part1(&antennas, input[0].len(), input.len()));
-    println!("{}", part2(&antennas, input[0].len(), input.len()));
+    assert_eq!(222, part1(&antennas, input[0].len(), input.len()));
+    assert_eq!(884, part2(&antennas, input[0].len(), input.len()));
 }

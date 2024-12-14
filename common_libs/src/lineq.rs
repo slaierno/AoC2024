@@ -1,4 +1,4 @@
-pub(crate) struct Bezout {
+pub struct Bezout {
     a: i64,
     b: i64,
     c: i64,
