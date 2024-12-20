@@ -1,0 +1,9 @@
+[package]
+name = "day15"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+itertools = "0.13.0"
+velcro = "0.5.3"
+common_libs = { path = "../common_libs" }

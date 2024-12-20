@@ -6,6 +6,7 @@ pub struct Point {
     pub y: isize,
 }
 
+pub const ZERO: Point = Point { x: 0, y: 0 };
 pub const DN_VEC: Point = Point { x: 0, y: 1 };
 pub const LX_VEC: Point = Point { x: -1, y: 0 };
 pub const UP_VEC: Point = Point { x: 0, y: -1 };
@@ -156,5 +157,11 @@ impl_muls!('a, &'a Point, &isize);
 impl std::fmt::Display for Point {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "({}, {})", self.x, self.y)
+    }
+}
+
+impl Default for Point {
+    fn default() -> Self {
+        Point { x: 0, y: 0 }
     }
 }

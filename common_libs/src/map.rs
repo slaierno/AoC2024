@@ -49,6 +49,52 @@ impl<T> Map<T> {
             default
         }
     }
+
+    pub fn position(&self, value: T) -> Option<Point>
+    where
+        T: PartialEq,
+    {
+        for i in 0..self.height() {
+            for j in 0..self.width() {
+                if self.map[i][j] == value {
+                    return Some(Point::from_usize(j, i));
+                }
+            }
+        }
+        None
+    }
+
+    pub fn swap(&mut self, pos1: Point, pos2: Point)
+    where
+        T: Clone + Copy,
+    {
+        let temp = self[pos1];
+        self[pos1] = self[pos2];
+        self[pos2] = temp;
+    }
+
+    pub fn enumerate(&self) -> impl Iterator<Item = (Point, &T)> {
+        self.get_all_positions().map(move |pos| (pos, &self[pos]))
+    }
+}
+
+impl Map<char> {
+    pub fn from_str(input_str: &str) -> Map<char> {
+        Map {
+            map: input_str
+                .lines()
+                .map(|l| l.chars().collect_vec())
+                .collect_vec(),
+        }
+    }
+
+    pub fn dump(&self) -> String {
+        self.map
+            .iter()
+            .map(|row| row.iter().collect::<String>())
+            .collect::<Vec<String>>()
+            .join("\n")
+    }
 }
 
 impl<T> Map<T>

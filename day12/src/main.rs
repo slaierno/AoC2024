@@ -7,12 +7,7 @@ use velcro::btree_map;
 
 const UNASSIGNED_COMPONENT: i32 = -1;
 fn process_input(input_str: &String) -> Map<char> {
-    Map {
-        map: input_str
-            .lines()
-            .map(|l| l.chars().collect_vec())
-            .collect_vec(),
-    }
+    Map::from_str(input_str)
 }
 
 fn build_component_map(garden_map: &Map<char>) -> Map<i32> {
